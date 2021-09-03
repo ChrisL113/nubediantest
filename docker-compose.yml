@@ -18,7 +18,7 @@ services:
       - nubedian-testmysql
     image: kristolopez/nubedian-test:0.0.1-SNAPSHOT
     ports:
-      - 8080:80
+      - 8080:8080
   nubedian-testmysql:
     restart: unless-stopped
     container_name: nubedian-testmysql
