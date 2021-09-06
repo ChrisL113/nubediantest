@@ -91,17 +91,7 @@ class ProcessorList extends Component {
     this.state = {
       onEditProcessor: null,
       openProcessorEditDialog: false,
-      processorId: '',
-      brand: '',
-      model: '',
-      socket: '',
-      numberOfCores: '',
-      numberOfThreads: '',
-      clockSpeed: '',
-      tdp: '',
-      eur: '',
-      errors: '',
-      isLoading: false,
+      
       opSelect: [],
     }
   }
@@ -112,33 +102,22 @@ class ProcessorList extends Component {
     })
   }
 
-  isValid() {
-    const { errors, isValid } = validateProcessor(this.state)
-
-    if (!isValid) {
-      this.setState({ errors })
-    }
-    return isValid
-  }
+  
 
   handleEdit = (cpu) => {
 
-    // if (this.isValid()) {
-    // this.setState({ errors: {}, isLoading: true })
+    
     updateProcessor(cpu).then(response => {
       if (response.success) {
         this.props.showSuccessSnackbar(response.msg)
         this.props.fetchProcessors().then(() => {
           this.setState({ openProcessorEditDialog: false })
         })
-        // this.setState({ isLoading: false })
       } else {
         this.props.showErrorSnackbar(response.msg)
         this.setState({ openProcessorEditDialog: false })
-        // this.setState({ isLoading: false })
       }
     })
-    // }
   }
 
   handleClose = () => {
@@ -175,115 +154,7 @@ class ProcessorList extends Component {
           ]}
           options={{ actionsColumnIndex: -1, pageSize: 10 }}
         />
-        {/* <Dialog
-          open={this.state.openProcessorEditDialog}
-          onClose={this.handleClose}
-          aria-labelledby='form-dialog-title'
-        >
-          <DialogTitle id='form-dialog-title'>CPU Details</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin='dense'
-              id='brand'
-              name='brand'
-              required
-              label='Brand'
-              value={this.state.brand}
-              fullWidth
-              onChange={this.handleChange}
-            />
-            <TextField
-              margin='dense'
-              name='model'
-              id='model'
-              required
-              label='Model'
-              value={this.state.model}
-              fullWidth
-              onChange={this.handleChange}
-            />
-            <TextField
-              SelectProps={{
-                native: true,
-              }}
-              margin='dense'
-              select
-              name='socket'
-              id='socket'
-              required
-              name='socket'
-              label='Socket'
-              fullWidth
-              onChange={this.handleChange}
-              value={this.state.socket}
-            >
-              {this.state.opSelect
-                ? this.state.opSelect.map((val, index) => (
-                    <option key={index} value={val}>
-                      {val}
-                    </option>
-                  ))
-                : null}
-            </TextField>
-            <TextField
-              margin='dense'
-              id='clockSpeed'
-              name='clockSpeed'
-              required
-              label='Clock Speed'
-              value={this.state.clockSpeed}
-              fullWidth
-              onChange={this.handleChange}
-            />
-            <TextField
-              margin='dense'
-              name='numberOfCores'
-              required
-              label='Nomber of Cores'
-              fullWidth
-              onChange={this.handleChange}
-              value={this.state.numberOfCores}
-            />
-            <TextField
-              margin='dense'
-              id='numberOfThreads'
-              name='numberOfThreads'
-              required
-              label='Number of Threads'
-              value={this.state.numberOfThreads}
-              fullWidth
-              onChange={this.handleChange}
-            />
-            <TextField
-              margin='dense'
-              id='tdp'
-              name='tdp'
-              required
-              label='TDP'
-              value={this.state.tdp}
-              fullWidth
-              onChange={this.handleChange}
-            />
-            <TextField
-              margin='dense'
-              id='eur'
-              name='eur'
-              required
-              label='EUR'
-              value={this.state.eur}
-              fullWidth
-              onChange={this.handleChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose} color='primary'>
-              Cancel
-            </Button>
-            <Button onClick={this.handleEdit} color='primary'>
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog> */}
+        
         {this.state.openProcessorEditDialog &&
         <DialogProcessor
           openProcessorEditDialog={this.state.openProcessorEditDialog}
