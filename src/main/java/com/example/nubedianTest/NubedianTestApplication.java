@@ -294,14 +294,18 @@ public class NubedianTestApplication {
 
 
             JSONArray aux = (JSONArray) jsonObject.get("Sheet1");
-            for (Object aux2 : aux) {
-                if (aux2 instanceof JSONObject) {
 
+            long processorId = 0;
+
+            for (Object aux2 : aux) {
+
+                if (aux2 instanceof JSONObject) {
+                processorId ++;
                     JSONObject aux3 = (JSONObject) aux2;
                 System.out.println(aux3.get("numberOfCores").getClass());
 
 
-                    repo.save(new Processor((String) aux3.get("model"),
+                    repo.save(new Processor( processorId,(String) aux3.get("model"),
                             (String) aux3.get("brand"),
                             (String) aux3.get("socket"),
                             (String) aux3.get("clockSpeed"),
@@ -314,7 +318,8 @@ public class NubedianTestApplication {
 
                 }
             }
-            repo.save(new Processor("Ryzen 3800",
+            processorId++;
+            repo.save(new Processor(processorId ,"Ryzen 3800",
                     "AMD",
                     "AM4",
                     "4.7 ghz",
@@ -322,7 +327,9 @@ public class NubedianTestApplication {
                     4L,
                     43.2,
                     450.3, false));
-			repo.save(new Processor("Ryzen 3700",
+
+            processorId++;
+			repo.save(new Processor(processorId,"Ryzen 3700",
 					"AMD",
 					"AM4",
 					"4.4 ghz",

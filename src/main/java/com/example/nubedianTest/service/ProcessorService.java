@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -33,9 +32,6 @@ public class ProcessorService {
         processor.setEUR(processorDto.getEUR());
 
 
-
-
-
         processorRepository.save(processor);
 
     }
@@ -47,18 +43,27 @@ public class ProcessorService {
     }
 
     @Transactional
-    public void updateProcessor(ProcessorDto processorDto){//crUd
+    public void updateProcessor(ProcessorDto processorDto) {//crUd
 
-        Optional<Processor> auxProcessor =
-                processorRepository.findById(processorDto.getModel());
-        Processor processor = processorMapper.mapDtoToProcessor(processorDto);
-        processor.markUpdate();
-        processorRepository.save(processor);
+        Processor auxProcessor =
+                processorRepository.getById(processorDto.getProcessorId());
+        
+        auxProcessor.setBrand(processorDto.getBrand());
+        auxProcessor.setModel(processorDto.getModel());
+        auxProcessor.setSocket(processorDto.getSocket());
+        auxProcessor.setEUR(processorDto.getEUR());
+        auxProcessor.setTDP(processorDto.getTDP());
+        auxProcessor.setNumberOfCores(processorDto.getNumberOfCores());
+        auxProcessor.setNumberOfThreads(processorDto.getNumberOfThreads());
+        auxProcessor.setClockSpeed(processorDto.getClockSpeed());
+
+        processorRepository.save(auxProcessor);
+
     }
 
     @Transactional
-    public void deleteProcessor(String model){//cruD
-        processorRepository.deleteById(model);
+    public void deleteProcessor(Long processorId) {//cruD
+        processorRepository.deleteById(processorId);
     }
 
 }

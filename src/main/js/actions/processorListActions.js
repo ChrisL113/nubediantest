@@ -1,6 +1,7 @@
+import axios from 'axios'
 import Axios from 'axios'
-import { GET_ALL_PROCESSORS } from '../api/api'
-import { FETCH_PROCESSORS } from './types'
+import { EDIT_PROCESSOR, GET_ALL_PROCESSORS } from '../api/api'
+import { FETCH_PROCESSORS, STORE_PROCESSOR } from './types'
 
 
 export const fetchProcessors = () => dispatch => {
@@ -15,7 +16,13 @@ export const fetchProcessors = () => dispatch => {
         }
         return response
       }
+      let op =  processors.data
+      let filteredOp = [] 
+      for (let index = 0; index < op.length; index++) {
+        filteredOp[op[index].socket]=op[index].socket 
+      }
       const response = {
+        filteredOp:Object.keys(filteredOp),
         status: 200,
         msg: '',
       }
@@ -28,7 +35,37 @@ export const fetchProcessors = () => dispatch => {
       }
       return response
     })
+
+    
 }
+
+export const updateProcessor = processorData => {
+  return Axios.put(EDIT_PROCESSOR, processorData)
+    
+    .then(res => {
+      
+      const response = {
+        success: true,
+        msg: 'CPU update sucessfully !',
+      }
+      return response
+    })
+    .catch(err => {
+      const response = {
+        success: false,
+        msg: err,
+      }
+      return response
+    })
+};
+
+
+export const storeProcessor = processorData => dispatch => {
+  dispatch({
+    type: STORE_PROCESSOR,
+    payload: processorData,
+  })
+} 
 
 // export const deleteUrl = (url, another) => dispatch => {
 //   return Axios.delete(DELETE_URL, { headers: {}, data: { url: url } })

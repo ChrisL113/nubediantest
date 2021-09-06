@@ -13,8 +13,12 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Entity
 public class Processor implements Persistable<String> {
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ProcessorId")
+    private long ProcessorId;
+
+    @NotBlank(message = "Model cannot be empty or null ")
     private  String model;
 
     @NotBlank(message = "Brand cannot be empty or null ")

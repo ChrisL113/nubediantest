@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProcessorDto {
+
+    private long ProcessorId;
+
     private String model;
 
     private String brand;

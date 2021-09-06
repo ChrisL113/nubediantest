@@ -1,15 +1,15 @@
 // import {  ERASE_URL, FETCH_URLS } from '../actions/types'
 
-import { EDIT_PROCESSOR, FETCH_PROCESSORS } from '../actions/types'
+import { FETCH_PROCESSORS, STORE_PROCESSOR } from '../actions/types'
 
 const initialState = {
   items: [],
+  item:{}
 }
 
 export default function (state = initialState, action) {
   switch (action.type) {
     case FETCH_PROCESSORS:
-      console.log(action.payload)
       return {
         ...state,
         items: action.payload,
@@ -19,7 +19,12 @@ export default function (state = initialState, action) {
     //     ...state,
     //     items: state.items.filter((item, index) => index !== action.payload),
     //   }
-
+    case STORE_PROCESSOR:
+      // console.log(action.payload)
+      return {
+        ...state,
+        item: action.payload,
+      }
     default:
       return state
   }

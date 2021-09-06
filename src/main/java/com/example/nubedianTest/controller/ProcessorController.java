@@ -36,6 +36,7 @@ public class ProcessorController {
    @PutMapping("/update")
    public ResponseEntity<String> editProcessor(
            @RequestBody ProcessorDto processorDto) {
+      System.out.println("hello hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee " + processorDto );
       try {
          processorService.updateProcessor(processorDto);
 
@@ -52,7 +53,7 @@ public class ProcessorController {
            @RequestBody ProcessorDto processorDto) {
 
       try {
-         processorService.deleteProcessor(processorDto.getModel());
+         processorService.deleteProcessor(processorDto.getProcessorId());
 
       } catch (EmptyResultDataAccessException exception) {
 

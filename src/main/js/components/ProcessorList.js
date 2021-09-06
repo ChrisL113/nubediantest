@@ -1,13 +1,6 @@
-import { Dialog } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
 import { withStyles } from '@material-ui/core/styles'
 import TableCell from '@material-ui/core/TableCell'
 import TableRow from '@material-ui/core/TableRow'
-import TextField from '@material-ui/core/TextField'
 import AddBox from '@material-ui/icons/AddBox'
 import ArrowDownward from '@material-ui/icons/ArrowDownward'
 import Check from '@material-ui/icons/Check'
@@ -27,7 +20,16 @@ import MaterialTable from 'material-table'
 import PropTypes from 'prop-types'
 import React, { Component, forwardRef } from 'react'
 import { connect } from 'react-redux'
-import { fetchProcessors } from '../actions/processorListActions'
+import {
+  showErrorSnackbar,
+  showSuccessSnackbar,
+} from '../actions/notificationActions'
+import {
+  fetchProcessors,
+  storeProcessor,
+  updateProcessor,
+} from '../actions/processorListActions'
+import DialogProcessor from './DialogProcessor'
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -87,7 +89,9 @@ class ProcessorList extends Component {
   constructor() {
     super()
     this.state = {
+      onEditProcessor: null,
       openProcessorEditDialog: false,
+      processorId: '',
       brand: '',
       model: '',
       socket: '',
@@ -98,17 +102,18 @@ class ProcessorList extends Component {
       eur: '',
       errors: '',
       isLoading: false,
+      opSelect: [],
     }
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSubmit = this.handleEdit.bind(this)
   }
 
   componentDidMount() {
-    this.props.fetchProcessors()
+    this.props.fetchProcessors().then(res => {
+      this.setState({ opSelect: res.filteredOp })
+    })
   }
 
   isValid() {
-    const { errors, isValid } = validateStudent(this.state)
+    const { errors, isValid } = validateProcessor(this.state)
 
     if (!isValid) {
       this.setState({ errors })
@@ -116,35 +121,24 @@ class ProcessorList extends Component {
     return isValid
   }
 
-  handleEdit(e) {
-    e.preventDefault()
+  handleEdit = (cpu) => {
 
-    const cpu = {
-      brand: this.state.brand,
-      model: this.state.model,
-      socket: this.state.socket,
-      numberOfCores: this.state.numberOfCores,
-      numberOfThreads: this.state.numberOfThreads,
-      clockSpeed: this.state.clockSpeed,
-      tdp: this.state.tdp,
-      eur: this.state.eur,
-    }
-
-    if (this.isValid()) {
-      this.setState({ errors: {}, isLoading: true })
-      // this.props.updateStudent(student).then(response => {
-      //   if (response.success) {
-      //     this.props.showSuccessSnackbar(response.msg)
-      //   } else {
-      //     this.props.showErrorSnackbar(response.msg)
-      //     this.setState({ isLoading: false })
-      //   }
-      // })
-    }
-  }
-
-  handleChange(e) {
-    this.setState({ [e.target.name]: e.target.value })
+    // if (this.isValid()) {
+    // this.setState({ errors: {}, isLoading: true })
+    updateProcessor(cpu).then(response => {
+      if (response.success) {
+        this.props.showSuccessSnackbar(response.msg)
+        this.props.fetchProcessors().then(() => {
+          this.setState({ openProcessorEditDialog: false })
+        })
+        // this.setState({ isLoading: false })
+      } else {
+        this.props.showErrorSnackbar(response.msg)
+        this.setState({ openProcessorEditDialog: false })
+        // this.setState({ isLoading: false })
+      }
+    })
+    // }
   }
 
   handleClose = () => {
@@ -158,8 +152,8 @@ class ProcessorList extends Component {
           icons={tableIcons}
           title='CPU Database'
           columns={[
-            { title: 'BRAND', field: 'model' },
-            { title: 'MODEL', field: 'brand' },
+            { title: 'BRAND', field: 'brand' },
+            { title: 'MODEL', field: 'model' },
             { title: 'SOCKET', field: 'socket' },
           ]}
           data={this.props.processors}
@@ -169,17 +163,11 @@ class ProcessorList extends Component {
               tooltip: 'edit cpu',
               onClick: (event, rowData) => {
                 if (rowData) {
-                  //   dispatch(storeStudent(rowData))
+                  // this.props.storeProcessor(rowData)
+                  // console.log(this.props.processor)
                   this.setState({
                     openProcessorEditDialog: true,
-                    brand: rowData.brand,
-                    model: rowData.model,
-                    socket: rowData.socket,
-                    numberOfCores: rowData.numberOfCores,
-                    numberOfThreads: rowData.numberOfThreads,
-                    clockSpeed: rowData.clockSpeed,
-                    tdp: rowData.tdp,
-                    eur: rowData.eur,
+                    onEditProcessor: rowData,
                   })
                 }
               },
@@ -187,90 +175,104 @@ class ProcessorList extends Component {
           ]}
           options={{ actionsColumnIndex: -1, pageSize: 10 }}
         />
-        <Dialog
+        {/* <Dialog
           open={this.state.openProcessorEditDialog}
           onClose={this.handleClose}
           aria-labelledby='form-dialog-title'
         >
-          <DialogTitle id='form-dialog-title'>Subscribe</DialogTitle>
+          <DialogTitle id='form-dialog-title'>CPU Details</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
             <TextField
-              autoFocus
               margin='dense'
               id='brand'
+              name='brand'
+              required
               label='Brand'
-              type='email'
               value={this.state.brand}
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
               margin='dense'
+              name='model'
               id='model'
+              required
               label='Model'
-              type='email'
               value={this.state.model}
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
-              autoFocus
+              SelectProps={{
+                native: true,
+              }}
               margin='dense'
               select
+              name='socket'
               id='socket'
-              label='socket'
-              type='email'
+              required
+              name='socket'
+              label='Socket'
               fullWidth
               onChange={this.handleChange}
               value={this.state.socket}
             >
-              {this.props.processors.map(option => (
-                <option key={option.model} value={option.socket}>
-                  {option.socket}
-                </option>
-              ))}
+              {this.state.opSelect
+                ? this.state.opSelect.map((val, index) => (
+                    <option key={index} value={val}>
+                      {val}
+                    </option>
+                  ))
+                : null}
             </TextField>
             <TextField
               margin='dense'
               id='clockSpeed'
+              name='clockSpeed'
+              required
               label='Clock Speed'
-              type='email'
               value={this.state.clockSpeed}
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
               margin='dense'
-              id='numberOfCores'
+              name='numberOfCores'
+              required
               label='Nomber of Cores'
-              type='email'
               fullWidth
+              onChange={this.handleChange}
               value={this.state.numberOfCores}
             />
             <TextField
               margin='dense'
               id='numberOfThreads'
+              name='numberOfThreads'
+              required
               label='Number of Threads'
-              type='email'
               value={this.state.numberOfThreads}
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
               margin='dense'
               id='tdp'
+              name='tdp'
+              required
               label='TDP'
-              type='email'
               value={this.state.tdp}
               fullWidth
+              onChange={this.handleChange}
             />
             <TextField
               margin='dense'
               id='eur'
+              name='eur'
+              required
               label='EUR'
-              type='email'
               value={this.state.eur}
               fullWidth
+              onChange={this.handleChange}
             />
           </DialogContent>
           <DialogActions>
@@ -278,23 +280,42 @@ class ProcessorList extends Component {
               Cancel
             </Button>
             <Button onClick={this.handleEdit} color='primary'>
-              Subscribe
+              Save
             </Button>
           </DialogActions>
-        </Dialog>
+        </Dialog> */}
+        {this.state.openProcessorEditDialog &&
+        <DialogProcessor
+          openProcessorEditDialog={this.state.openProcessorEditDialog}
+          opSelect={this.state.opSelect} // brand={this.state.brand}
+          processor={this.state.onEditProcessor}
+          // brand={this.props.processor.brand}
+          handleEdit={this.handleEdit}
+          handleClose={this.handleClose}
+        />}
+        
       </div>
     )
   }
 }
 
 ProcessorList.propTypes = {
-  onRowsPerPageChange: PropTypes.func.isRequired,
   fetchProcessors: PropTypes.func.isRequired,
   processors: PropTypes.array.isRequired,
+  showSuccessSnackbar: PropTypes.func.isRequired,
+  showErrorSnackbar: PropTypes.func.isRequired,
+  updateProcessor: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => ({
   processors: state.processors.items,
+  processor: state.processors.item,
 })
 
-export default connect(mapStateToProps, { fetchProcessors })(ProcessorList)
+export default connect(mapStateToProps, {
+  fetchProcessors,
+  updateProcessor,
+  storeProcessor,
+  showSuccessSnackbar,
+  showErrorSnackbar,
+})(ProcessorList)
