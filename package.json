@@ -10,6 +10,7 @@
     "lodash": "^4.17.21",
     "material-table": "^1.69.1",
     "react": "^16.14.0",
+    "react-addons-update": "^15.6.3",
     "react-dom": "^16.2.0",
     "react-number-format": "^4.7.3",
     "react-redux": "^7.2.4",

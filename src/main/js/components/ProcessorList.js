@@ -23,10 +23,13 @@ import { connect } from 'react-redux'
 import {
   showErrorSnackbar,
   showSuccessSnackbar,
+  showInfoSnackbar,
 } from '../actions/notificationActions'
 import {
+  deleteProcessor,
   fetchProcessors,
   storeProcessor,
+  cleanTable,
   updateProcessor,
 } from '../actions/processorListActions'
 import DialogProcessor from './DialogProcessor'
@@ -73,17 +76,6 @@ const StyledTableRow = withStyles(theme => ({
   },
 }))(TableRow)
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein }
-}
-
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('ANY OTHER ', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-]
 
 class ProcessorList extends Component {
   constructor() {
@@ -91,28 +83,48 @@ class ProcessorList extends Component {
     this.state = {
       onEditProcessor: null,
       openProcessorEditDialog: false,
-      
+
       opSelect: [],
     }
   }
 
   componentDidMount() {
+   this.props.cleanTable() 
     this.props.fetchProcessors().then(res => {
       this.setState({ opSelect: res.filteredOp })
     })
   }
 
-  
-
-  handleEdit = (cpu) => {
-
-    
-    updateProcessor(cpu).then(response => {
-      if (response.success) {
+  handleDelete = cpu => {
+    this.props.deleteProcessor(cpu).then(response => {
+      if (response.status == 200) {
         this.props.showSuccessSnackbar(response.msg)
         this.props.fetchProcessors().then(() => {
           this.setState({ openProcessorEditDialog: false })
         })
+      }
+      else if (response.status == 204) {
+        this.props.showInfoSnackBar(response.msg)
+        this.props.fetchProcessors().then(() => {
+          this.setState({ openProcessorEditDialog: false })
+        })
+      } else {
+        this.props.showErrorSnackbar(response.msg)
+        this.setState({ openProcessorEditDialog: false })
+      }
+    })
+  }
+
+  handleEdit = cpu => {
+
+    this.props.updateProcessor(cpu).then(response => {
+      
+      if (response.success) {
+        this.props.showSuccessSnackbar(response.msg)
+        // this.props.cleanTable()
+        // this.props.fetchProcessors().then(() => {
+          this.setState({ openProcessorEditDialog: false })
+        // })
       } else {
         this.props.showErrorSnackbar(response.msg)
         this.setState({ openProcessorEditDialog: false })
@@ -133,7 +145,7 @@ class ProcessorList extends Component {
           columns={[
             { title: 'BRAND', field: 'brand' },
             { title: 'MODEL', field: 'model' },
-            { title: 'SOCKET', field: 'socket' },
+            { title: 'SOCKET', field: 'socket.description' },
           ]}
           data={this.props.processors}
           actions={[
@@ -143,7 +155,6 @@ class ProcessorList extends Component {
               onClick: (event, rowData) => {
                 if (rowData) {
                   // this.props.storeProcessor(rowData)
-                  // console.log(this.props.processor)
                   this.setState({
                     openProcessorEditDialog: true,
                     onEditProcessor: rowData,
@@ -154,28 +165,32 @@ class ProcessorList extends Component {
           ]}
           options={{ actionsColumnIndex: -1, pageSize: 10 }}
         />
-        
-        {this.state.openProcessorEditDialog &&
-        <DialogProcessor
-          openProcessorEditDialog={this.state.openProcessorEditDialog}
-          opSelect={this.state.opSelect} // brand={this.state.brand}
-          processor={this.state.onEditProcessor}
-          // brand={this.props.processor.brand}
-          handleEdit={this.handleEdit}
-          handleClose={this.handleClose}
-        />}
-        
+
+        {this.state.openProcessorEditDialog && (
+          <DialogProcessor
+            openProcessorEditDialog={this.state.openProcessorEditDialog}
+            opSelect={this.state.opSelect} // brand={this.state.brand}
+            processor={this.state.onEditProcessor}
+            // brand={this.props.processor.brand}
+            handleEdit={this.handleEdit}
+            handleDelete={this.handleDelete}
+            handleClose={this.handleClose}
+          />
+        )}
       </div>
     )
   }
 }
 
 ProcessorList.propTypes = {
+  cleanTable: PropTypes.func.isRequired,
   fetchProcessors: PropTypes.func.isRequired,
   processors: PropTypes.array.isRequired,
   showSuccessSnackbar: PropTypes.func.isRequired,
+  showInfoSnackbar: PropTypes.func.isRequired,
   showErrorSnackbar: PropTypes.func.isRequired,
   updateProcessor: PropTypes.func.isRequired,
+  deleteProcessor: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => ({
@@ -186,7 +201,10 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
   fetchProcessors,
   updateProcessor,
+  deleteProcessor,
   storeProcessor,
+  cleanTable,
   showSuccessSnackbar,
+  showInfoSnackbar,
   showErrorSnackbar,
 })(ProcessorList)

@@ -30,8 +30,8 @@ services:
       MYSQL_DATABASE: nubedian
       MYSQL_USERNAME: root
       MYSQL_ROOT_PASSWORD: superstrongpassword
-    volumes:
-      - "db:/var/lib/mysql"
+#    volumes:
+#      - "db:/var/lib/mysql"
 
-volumes:
-  db:
+#volumes:
+#  db:

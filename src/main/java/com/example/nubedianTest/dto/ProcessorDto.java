@@ -1,5 +1,6 @@
 package com.example.nubedianTest.dto;
 
+import com.example.nubedianTest.model.Socket;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,13 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProcessorDto {
 
-    private long ProcessorId;
+    private long processorId;
 
     private String model;
 
     private String brand;
 
-    private String socket;
+    private Socket socket;
 
     private String clockSpeed;
 

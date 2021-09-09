@@ -1,31 +1,26 @@
 package com.example.nubedianTest.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
+import lombok.*;
+import org.hibernate.engine.internal.Cascade;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Processor implements Persistable<String> {
+public class Processor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ProcessorId")
-    private long ProcessorId;
+    private long processorId;
 
     @NotBlank(message = "Model cannot be empty or null ")
-    private  String model;
+    private String model;
 
     @NotBlank(message = "Brand cannot be empty or null ")
     private String brand;
-
-    @NotBlank(message = "Socket cannot be empty or null ")
-    private String socket;
 
     @NotBlank(message = "ClockSpeed cannot be empty or null ")
     private String clockSpeed;
@@ -38,22 +33,9 @@ public class Processor implements Persistable<String> {
 
     private Double EUR;
 
-    @Transient
-    private boolean update;
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "socketId")
+    private Socket socket;
 
-    @Override
-    public String getId() {
-        return this.model;
-    }
-
-    @Override
-    public boolean isNew() {
-        return this.update;
-    }
-
-    @PrePersist
-    @PostLoad
-    public void markUpdate() {
-        this.update = true;
-    }
 }

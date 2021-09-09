@@ -25,7 +25,6 @@ export const validateProcessor = processorData => {
     errors.tdp = true
   }
 
-  // console.log(processorData)
 if (Validator.isEmpty(eur)) {
     errors.eur = true
   }

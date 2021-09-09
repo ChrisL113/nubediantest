@@ -3,7 +3,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
+  TextField
 } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import PropTypes from 'prop-types'
@@ -64,6 +64,19 @@ export default function DialogProcessor(props) {
     })
   }
 
+  const handleSelect = e => {
+    const socketSelected = props.opSelect.filter(
+          item => item.description === e.target.value
+        )
+
+    setCpu(prevState => {
+      return {
+        ...prevState,
+        socket:socketSelected[0] ,
+      }
+    })
+  }
+
   const isValid = () => {
     const { errors, isValid } = validateProcessor(cpu)
     if (!isValid) {
@@ -91,7 +104,7 @@ export default function DialogProcessor(props) {
             id='brand'
             name='brand'
             required
-            error={ cpu.errors.brand }
+            error={cpu.errors.brand}
             label='Brand'
             value={cpu.brand}
             fullWidth
@@ -117,16 +130,16 @@ export default function DialogProcessor(props) {
             name='socket'
             label='Socket'
             fullWidth
-            onChange={handleChange}
-            value={cpu.socket}
+            onChange={handleSelect}
+            value={cpu.socket.description}
             SelectProps={{
               native: true,
             }}
           >
             {props.opSelect
               ? props.opSelect.map((val, index) => (
-                  <option key={index} value={val}>
-                    {val}
+                  <option key={index} value={val.description}>
+                    {val.description}
                   </option>
                 ))
               : []}
@@ -199,6 +212,13 @@ export default function DialogProcessor(props) {
           />
         </DialogContent>
         <DialogActions>
+          {/* <Button onClick={()=>{
+          props.handleDelete(cpu)
+          }} color='secondary'
+          >
+            Delete
+          </Button> */}
+
           <Button onClick={props.handleClose} color='primary'>
             Cancel
           </Button>

@@ -1,13 +1,18 @@
 package com.example.nubedianTest;
 
 import com.example.nubedianTest.model.Processor;
+import com.example.nubedianTest.model.Socket;
 import com.example.nubedianTest.repository.ProcessorRepository;
+import com.example.nubedianTest.repository.SocketRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 @SpringBootApplication
@@ -18,7 +23,8 @@ public class NubedianTestApplication {
     }
 
     @Bean
-    public CommandLineRunner demoData(ProcessorRepository repo) {
+    public CommandLineRunner demoData(ProcessorRepository repo,
+                                      SocketRepository socketRepo) {
         return args -> {
             JSONObject jsonObject = new JSONObject();
             try {
@@ -297,47 +303,52 @@ public class NubedianTestApplication {
 
             long processorId = 0;
 
+//            Socket socket1 = new Socket(1L, "AM4", null);
+//            Socket socket2 = new Socket(2L, "AM3", null);
+//
+//            socketRepo.save(socket1);
+//            socketRepo.save(socket2);
+            long socketIt = 0;
+            for (Object aux2 : aux) {
+                socketIt++;
+                JSONObject aux3 = (JSONObject) aux2;
+                Socket auxSocket = new Socket(socketIt,
+                        (String) aux3.get("socket"), null
+                );
+                if (!socketRepo.existsProcessorByDescription(auxSocket.getDescription())) {
+
+                    socketRepo.save(auxSocket);
+                }
+
+            }
+
+
             for (Object aux2 : aux) {
 
                 if (aux2 instanceof JSONObject) {
-                processorId ++;
+                    processorId++;
                     JSONObject aux3 = (JSONObject) aux2;
-                System.out.println(aux3.get("numberOfCores").getClass());
 
+                    Processor
+                            processorAux =
+                            new Processor(processorId, (String) aux3.get("model"),
+                                    (String) aux3.get("brand"),
+                                    (String) aux3.get("clockSpeed"),
+                                    ((Integer) aux3.get("numberOfCores")).longValue(),
+                                    ((Integer) aux3.get("numberOfThreads")).longValue(),
+                                    new Double(aux3.get("TDP").toString() + ".0"),
+                                    new Double(aux3.get("EUR").toString() + ".0"),
+                                    null);
+                    Socket auxSocket =
+                            socketRepo.findByDescription((String) aux3.get(
+                                    "socket")).get(0);
 
-                    repo.save(new Processor( processorId,(String) aux3.get("model"),
-                            (String) aux3.get("brand"),
-                            (String) aux3.get("socket"),
-                            (String) aux3.get("clockSpeed"),
-                            ((Integer) aux3.get("numberOfCores")).longValue(),
-                            ((Integer) aux3.get("numberOfThreads")).longValue(),
-                            new Double(aux3.get("TDP").toString() + ".0"),
-                            new Double(aux3.get("EUR").toString() + ".0")
-                            , false
-                    ));
+                    processorAux.setSocket(auxSocket);
+                    repo.save(processorAux);
 
                 }
+
             }
-            processorId++;
-            repo.save(new Processor(processorId ,"Ryzen 3800",
-                    "AMD",
-                    "AM4",
-                    "4.7 ghz",
-                    3L,
-                    4L,
-                    43.2,
-                    450.3, false));
-
-            processorId++;
-			repo.save(new Processor(processorId,"Ryzen 3700",
-					"AMD",
-					"AM4",
-					"4.4 ghz",
-					3L,
-					4L,
-					43.2,
-					450.3,false ));
-
 
         };
     }
